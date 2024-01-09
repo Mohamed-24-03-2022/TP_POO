@@ -21,6 +21,7 @@ def are_chars(chars, string):
     # for res in is_char_in_there:
     #     if (res == False):
     #         return res
+    # return True
 
     #! Method 2 avec l'operateur "in"
     for char in chars:
@@ -68,6 +69,7 @@ def get_molar_mass(dna):
 
 def get_complementary(dna):
     """ Si 'dna' est un brin, retourne son complémentaire. Sinon retourne 'None'."""
+
     if (not is_dna(dna)):
         return None
     complementary = ''
@@ -82,32 +84,52 @@ def get_complementary(dna):
             complementary += 'G'
     return complementary
 
+
 # Les 4 fonctions suivantes permettent de jouer avec des mots
 
 
 def get_first_deleted(char, string):
     """ Retourne la chaine 'string' amputée de la première occurrence du caractère 'char'"""
-    pass
+
+    for i in range(len(string)):
+        if (char == string[i]):
+            return string[0:i] + string[i+1:len(string)]
+    return None
 
 
 def is_scrabble(word, letters):
     """ Retourne True si le mot 'word' peut être construit comme au jeu du Scrabble à partir des lettres de la chaîne
     'letters' (les lettres répétées dans 'word' seront dont  également répétées au moins le même nombre de fois dans
     'letters'). False sinon. Il faudra obligatoirement utiliser 'get_first_deleted'."""
-    pass
+
+    for char in word:
+        is_char_word_in_letters = get_first_deleted(char, letters)
+        if (not is_char_word_in_letters):
+            return False
+    return True
 
 
 def is_anagram(word1, word2):
     """ Retourne 'True' si 'word1' et 'word2' sont deux anagrammes.
     'False' sinon. Il faudra obligatoirement utiliser 'is_scrabble'."""
-    pass
+
+    return is_scrabble(word2, word1)
 
 
 def get_hamming_distance(word1, word2):
     """ Retourne la distance de Hamming entre 'word1' et 'word2' ou -1 si son calcul n'est pas possible.
     La distance de Hamming entre deux chaines de même longueur correspond au nombre de positions auxquelles sont
     associés des caractères différents. """
-    pass
+
+    if (len(word1) != len(word2)):
+        return -1
+    hamming_distance = 0
+
+    for i in range(len(word1)):
+        if (word1[i] != word2[i]):
+            hamming_distance += 1
+
+    return hamming_distance
 
 
 if __name__ == "__main__":
@@ -137,11 +159,15 @@ if __name__ == "__main__":
     assert get_complementary(DNA_TEST) == 'CATAAGAGT'
     assert get_complementary(NOT_DNA_TEST) == None
 
-    # assert get_first_deleted('r', SCRABBLE_TEST) == 'aeeigmnrrstuwz'
-    # assert is_scrabble(WORDS4_TEST, WORDS6_TEST)
-    # assert not is_scrabble(WORDS5_TEST, WORDS6_TEST)
-    # assert is_anagram(WORDS6_TEST, SCRABBLE_TEST)
-    # assert not is_anagram(WORDS4_TEST, SCRABBLE_TEST)
-    # assert get_hamming_distance(WORDS6_TEST, SCRABBLE_TEST) == 13
-    # assert get_hamming_distance(WORDS4_TEST, SCRABBLE_TEST) == -1
+    assert get_first_deleted('r', SCRABBLE_TEST) == 'aeeigmnrrstuwz'
+
+    assert is_scrabble(WORDS4_TEST, WORDS6_TEST)
+    assert not is_scrabble(WORDS5_TEST, WORDS6_TEST)
+
+    assert is_anagram(WORDS6_TEST, SCRABBLE_TEST)
+    assert not is_anagram(WORDS4_TEST, SCRABBLE_TEST)
+
+    assert get_hamming_distance(WORDS6_TEST, SCRABBLE_TEST) == 13
+    assert get_hamming_distance(WORDS4_TEST, SCRABBLE_TEST) == -1
+
     print("All tests OK")
