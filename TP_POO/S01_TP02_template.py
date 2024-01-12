@@ -81,7 +81,17 @@ def get_next_scales(scale, words):
 
 def get_scale(file_path, word1, word2):
     """ Retourne une échelle de mots entre 'word1' et 'word2' avec les mots du dictionnaire 'file_path'"""
-    pass
+    result = [word1]
+    with open(file_path) as f:
+        for word in f.readlines():
+            word = word[:-1]
+            hamming_distance = get_hamming_distance(word1, word)
+            if (hamming_distance == 1):
+                result.append(word)
+                if (word == word2):
+                    break
+
+    return result
 
 
 if __name__ == "__main__":
@@ -115,6 +125,7 @@ if __name__ == "__main__":
         ['CHANGE', 'CHANTE', 'CRANTE']]
 
     t1 = perf_counter()
+    print('ezzzzzzz', get_scale(DICT_NAME, 'SUD', 'EST'))
     assert get_scale(DICT_NAME, 'SUD', 'EST') == ['SUD', 'SUT', 'EUT', 'EST']
     t2 = perf_counter()
     print(t2 - t1)
