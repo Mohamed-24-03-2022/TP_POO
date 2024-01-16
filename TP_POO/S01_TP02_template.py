@@ -12,7 +12,7 @@ def get_words_from_dictionary(file_path, length=None):
 
     result = []
 
-    with open(file_path) as f:
+    with open(file_path, 'r', encoding='utf-8') as f:
         words_list = f.readlines()
 
         for word in words_list:
@@ -46,6 +46,7 @@ def is_perfect_scale(scale):
     start_target_words_distance = len(scale) - 1
     first_word = scale[0]
     last_word = scale[start_target_words_distance]
+
     return get_hamming_distance(first_word, last_word) == start_target_words_distance
 
 
@@ -81,8 +82,9 @@ def get_next_scales(scale, words):
 
 def get_scale(file_path, word1, word2):
     """ Retourne une échelle de mots entre 'word1' et 'word2' avec les mots du dictionnaire 'file_path'"""
+
     result = [word1]
-    with open(file_path) as f:
+    with open(file_path, 'r', encoding='utf-8') as f:
         for word in f.readlines():
             word = word[:-1]
             hamming_distance = get_hamming_distance(word1, word)
@@ -125,7 +127,7 @@ if __name__ == "__main__":
         ['CHANGE', 'CHANTE', 'CRANTE']]
 
     t1 = perf_counter()
-    print('ezzzzzzz', get_scale(DICT_NAME, 'SUD', 'EST'))
+    print(' Result log :', get_scale(DICT_NAME, 'SUD', 'EST'))
     assert get_scale(DICT_NAME, 'SUD', 'EST') == ['SUD', 'SUT', 'EUT', 'EST']
     t2 = perf_counter()
     print(t2 - t1)

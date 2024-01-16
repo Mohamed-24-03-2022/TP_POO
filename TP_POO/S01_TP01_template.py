@@ -113,7 +113,7 @@ def is_anagram(word1, word2):
     """ Retourne 'True' si 'word1' et 'word2' sont deux anagrammes.
     'False' sinon. Il faudra obligatoirement utiliser 'is_scrabble'."""
 
-    return is_scrabble(word2, word1)
+    return len(word1) == len(word2) and is_scrabble(word2, word1)
 
 
 def get_hamming_distance(word1, word2):
