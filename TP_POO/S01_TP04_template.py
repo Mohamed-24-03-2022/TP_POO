@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+# !/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 from config import *
@@ -12,14 +12,38 @@ import matplotlib.pyplot as plt
 
 def get_text_from_file_name(file_name):
     """ retourne sous la forme d’une chaîne de caractères le texte du fichier de nom 'file_name' et encodé en utf8 """
-    pass
+    file_content = ""
+    try:
+        with open(file_name, 'r', encoding='utf-8') as f_out:
+            file_content = f_out.read()
+    except FileNotFoundError:
+        print("File Not Found")
+        return ""
+    except Exception as e:
+        print(e)
+        return ""
+
+    return file_content
 
 
 def get_text_from_file_name_with_encoding(file_name):
     """ Détecte l’encodage du fichier de nom 'file_name' ouvert sous sa forme binaire puis retourne le dictionnaire
     des informations sur l’encodage détecté ainsi que le texte décodé sous la forme d’une chaîne de caractère.
     Vous utiliserez la fonction 'detect' du module 'chardet' et la fonction '.decode' associée aux chaînes binaires."""
-    pass
+
+    dict = {}
+    file_content = ""
+    try:
+        with open(file_name, 'rb') as f_b_out:
+            file_b_content = f_b_out.read()
+            dict = chardet.detect(file_b_content)
+        with open(file_name, 'r', encoding=dict["encoding"]) as f_out:
+            file_content = f_out.read()
+    except FileNotFoundError:
+        print("File Not Found")
+        return ""
+
+    return dict, file_content
 
 
 #########################################################################################################
@@ -30,7 +54,11 @@ def get_basic_alphabet(alpha2_code):
     """Retourne une chaîne constituée des caractères de la langue du pays dont le code sur 2 caractères est
     'alpha2_code'. Retourne "" si le code n’existe pas. Le chemin d'accès au fichier dans nos ressources est
     'PATH_ALPHABET + {alpha2_code}_alphabet.txt'. Vous capterez l'exception 'FileNotFoundError."""
-    pass
+
+    alphabet = get_text_from_file_name(
+        PATH_ALPHABET + f"{alpha2_code}_alphabet.txt").split()
+
+    return "".join(alphabet)
 
 
 def get_diacriticals(alpha2_code):
@@ -38,21 +66,41 @@ def get_diacriticals(alpha2_code):
     et leur(s) homologue(s) avec l’accent (valeurs) dans la langue du pays dont le code sur 2 caractères est
     'alpha2_code'. Retourne '{}' si le code n’existe pas. Le chemin d'accès au fichier dans nos ressources est
     'PATH_ALPHABET + {alpha2_code}_diacriticals.txt'. Vous utiliserez 'str.join' et 'list.split'."""
-    pass
+
+    dict = {}
+    alphabet_list = get_text_from_file_name(
+        PATH_ALPHABET + f"{alpha2_code}_diacriticals.txt").split()
+    for i, char in enumerate(alphabet_list):
+        if (i % 2 == 0):
+            special_char = alphabet_list[i+1].split("|")
+            dict[char] = "".join(special_char)
+
+    return dict
 
 
 def get_accented_letters(alpha2_code):
     """ Retourne la chaîne des caractères accentués dans la langue du pays dont le code sur 2 caractères est
     'alpha2_code'. Retourne "" si le code n’est pas géré par nos ressources. Vous utiliserez les fonctions 'str.join',
     'dict.values', 'get_diacriticals' """
-    pass
+    res = ""
+    dict = get_diacriticals(alpha2_code)
+    letters_list = []
+    for letter in dict:
+        letters_list.append(dict[letter])
+    res = "".join(letters_list)
+
+    return res
 
 
 def get_all_letters(alpha2_code):
     """ Retourne une chaîne constituée de toutes les lettres autorisées par la langue du pays dont le code sur 2
     caractères est 'alpha2_code'. Retourne "" si le code n’est pas géré par nos ressources. Vous utiliserez les
     fonctions 'get_basic_alphabet', 'get_accented_letter' et 'str.upper' """
-    pass
+
+    alphabet = get_basic_alphabet(
+        alpha2_code) + get_accented_letters(alpha2_code)
+
+    return alphabet + alphabet.upper().replace('&', '')
 
 
 #########################################################################################################
@@ -62,13 +110,33 @@ def get_all_letters(alpha2_code):
 def get_unaccented_letter(letter, diacriticals):
     """ Retourne le caractère 'letter'  mais sans les diacritiques du dictionnaire 'diacriticals' et sans changer la
     casse de caractère. Vous utiliserez les fonctions 'dict.items', 'str.lower' et 'str.upper'. """
-    pass
+
+    for charc in diacriticals:
+        # if (charc.upper() == letter):
+        #     return letter
+        if (letter in diacriticals[charc].upper()):
+            return charc.upper()
+
+    return letter
 
 
 def get_unaccented_text(text, diacriticals):
     """Retourne le texte de la chaîne 'text' mais sans les diacritiques du dictionnaire 'diacriticals' et sans changer
     la casse de caractère. Vous utiliserez 'get_unaccented_letter."""
-    pass
+
+    string_list = []
+    upper_letters_index = []
+
+    for i, letter in enumerate(text):
+        if (letter.upper() == letter and letter.upper() != " " and letter.upper() != "!" and letter.upper() != "'" and letter.upper() != "."):
+            upper_letters_index += [i]
+        string_list.append(get_unaccented_letter(
+            letter.upper(), diacriticals).lower())
+
+    for i in upper_letters_index:
+        string_list[i] = string_list[i].upper()
+
+    return "".join(string_list)
 
 
 #########################################################################################################
@@ -80,13 +148,32 @@ def get_letters_histogram(text, alpha2_code):
     et tous les diacritiques remplacés par leur homologue sans accent de la langue du pays dont le code sur 2 caractères
     est 'alpha2_code'. Vous devrez ensuite utiliser la définition en compréhension de dictionnaire et la fonction
     'str.count'."""
-    pass
+
+    res = {}
+
+    text_unaccened_lowered = get_unaccented_text(
+        text, get_diacriticals(alpha2_code)).lower()
+
+    for letter in get_basic_alphabet(alpha2_code):
+        res[letter] = text_unaccened_lowered.count(letter)
+
+    return res
 
 
 def get_normalized_histogram(histogram):
     """ Retourne 'histogram' en remplaçant pour chaque lettre le nombre d’occurrences par la valeur normalisée entre 0
     et 1 (arrondi au centième). """
-    pass
+
+    res = histogram.copy()
+    somme = 0
+
+    for letter in res:
+        somme += res[letter]
+
+    for letter in res:
+        res[letter] = round((res[letter] / somme), 2)
+
+    return res
 
 
 def add_figure_histogram(figure_axis, histogram, is_sorted_by_freq=False):
